@@ -10,4 +10,5 @@ LIBRYGEL_RENDERER_NONVAPI_SOURCE_FILES = \
 	rygel-sink-connection-manager.vala \
 	rygel-time-utils.vala \
 	rygel-changelog.vala \
-	rygel-volume.vala
+	rygel-volume.vala \
+	rygel-renderer-v1-hacks.vala

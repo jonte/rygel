@@ -92,6 +92,14 @@ public class Rygel.MediaRendererPlugin : Rygel.Plugin {
         return this.controller;
     }
 
+    public override void apply_hacks (RootDevice device,
+                                      string     description_path)
+                                      throws Error {
+        var v1_hacks = new RendererV1Hacks ();
+        v1_hacks.apply_on_device (device, description_path);
+    }
+
+
     public string get_protocol_info () {
         var player = this.get_player ();
         if (player == null) {

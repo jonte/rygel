@@ -98,7 +98,7 @@ public abstract class Rygel.MediaServerPlugin : Rygel.Plugin {
                                      string     description_path)
                                      throws Error {
         // Apply V1 downgrades
-        var v1_hacks = new V1Hacks ();
+        var v1_hacks = new ServerV1Hacks ();
         v1_hacks.apply_on_device (device, description_path);
 
         // Apply XBox hacks on top of that
