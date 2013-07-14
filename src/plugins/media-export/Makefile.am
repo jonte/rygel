@@ -7,6 +7,7 @@ librygel_media_export_la_SOURCES = \
 	rygel-media-export-plugin.vala \
 	rygel-media-export-database.vala \
 	rygel-media-export-database-cursor.vala \
+	rygel-media-export-dvd-parser.vala \
 	rygel-media-export-sqlite-wrapper.vala \
 	rygel-media-export-db-container.vala \
 	rygel-media-export-sql-factory.vala \

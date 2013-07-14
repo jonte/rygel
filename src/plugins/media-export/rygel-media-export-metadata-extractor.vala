@@ -59,6 +59,8 @@ public class Rygel.MediaExport.MetadataExtractor: GLib.Object {
 
     private bool extract_metadata;
 
+    private DVDParser dvd_parser;
+
     public MetadataExtractor () {
         this.file_hash = new HashMap<string, File> ();
 
@@ -68,26 +70,36 @@ public class Rygel.MediaExport.MetadataExtractor: GLib.Object {
     }
 
     public void extract (File file, string content_type) {
-        if (this.extract_metadata && !content_type.has_prefix ("text/")) {
-            string uri = file.get_uri ();
-            try {
-                var gst_timeout = (ClockTime) (this.timeout * Gst.SECOND);
-
-                this.discoverer = new Discoverer (gst_timeout);
-            } catch (Error error) {
-                debug ("Failed to create a discoverer. Doing basic extraction.");
-                this.extract_basic_information (file, null, null);
-
-                return;
-            }
-            this.file_hash.set (uri, file);
-            this.discoverer.discovered.connect (on_done);
-            this.discoverer.start ();
-            this.discoverer.discover_uri_async (uri);
-            this.guesser = new GUPnPDLNA.ProfileGuesser (true, true);
-        } else {
+        if (!this.extract_metadata || content_type.has_prefix ("text/")) {
             this.extract_basic_information (file, null, null);
+
+            return;
         }
+
+        if (content_type == "application/x-cd-image") {
+            this.dvd_parser = new DVDParser (file);
+            this.dvd_parser.run.begin ();
+
+            return;
+        }
+
+        var uri = file.get_uri ();
+        try {
+            var gst_timeout = (ClockTime) (this.timeout * Gst.SECOND);
+
+            this.discoverer = new Discoverer (gst_timeout);
+        } catch (Error error) {
+            debug ("Failed to create a discoverer. Doing basic extraction.");
+            this.extract_basic_information (file, null, null);
+
+            return;
+        }
+
+        this.file_hash.set (uri, file);
+        this.discoverer.discovered.connect (on_done);
+        this.discoverer.start ();
+        this.discoverer.discover_uri_async (uri);
+        this.guesser = new GUPnPDLNA.ProfileGuesser (true, true);
     }
 
     private void on_done (DiscovererInfo info, GLib.Error err) {
