@@ -78,7 +78,7 @@ public class Rygel.MediaExport.MetadataExtractor: GLib.Object {
 
         if (content_type == "application/x-cd-image") {
             this.dvd_parser = new DVDParser (file);
-            this.dvd_parser.run.begin ();
+            this.dvd_parser.run.begin (this.on_dvd_parser_done);
 
             return;
         }
@@ -129,6 +129,10 @@ public class Rygel.MediaExport.MetadataExtractor: GLib.Object {
         var dlna_info = GUPnPDLNAGst.utils_information_from_discoverer_info (info);
         var dlna = this.guesser.guess_profile_from_info (dlna_info);
         this.extract_basic_information (file, info, dlna);
+    }
+
+    private void on_dvd_parser_done () {
+        this.extract_basic_information (this.dvd_parser.file, null, null);
     }
 
     private void extract_basic_information (File               file,

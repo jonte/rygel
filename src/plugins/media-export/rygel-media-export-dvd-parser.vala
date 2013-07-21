@@ -22,7 +22,7 @@
 
 internal class Rygel.MediaExport.DVDParser : GLib.Object {
     /// URI to the image / toplevel directory
-    public File file { private get; construct; }
+    public File file { public get; construct; }
 
     private File cache_file;
 

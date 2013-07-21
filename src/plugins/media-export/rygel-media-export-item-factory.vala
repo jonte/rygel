@@ -35,7 +35,7 @@ namespace Rygel.MediaExport.ItemFactory {
                                             File           file,
                                             FileInfo       info) {
         var title = info.get_display_name ();
-        MediaItem item;
+        MediaItem item = null;
         var mime = ContentType.get_mime_type (info.get_content_type ());
 
         if (mime.has_prefix ("video/")) {
@@ -44,13 +44,20 @@ namespace Rygel.MediaExport.ItemFactory {
             item = new PhotoItem (MediaCache.get_id (file), parent, title);
         } else if (mime.has_prefix ("audio/") || mime == "application/ogg") {
             item = new MusicItem (MediaCache.get_id (file), parent, title);
-        } else { // application/xml or text/xml
+        } else if (mime.has_suffix ("/xml")) {
             item = ItemFactory.create_playlist_item (file, parent, title);
             if (item == null) {
                 return null;
             }
             // DLNA requires that DIDL_S playlist have text/xml MIME type.
             mime = "text/xml";
+        } else if (mime == "application/x-cd-image") {
+            // The code analysing the file should already have checked that
+            // this really is a DVD and not some live CD or so.
+            //item = ItemFactory.create_dvd_item (file, parent, title);
+            return null;
+        } else {
+            return null;
         }
 
         item.mime_type = mime;
