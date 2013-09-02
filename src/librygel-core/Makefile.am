@@ -15,6 +15,8 @@ librygel_core_2_0_la_VALAFLAGS = \
 	-H rygel-core.h -C --library=rygel-core-2.0 \
 	--vapidir=$(srcdir) \
 	--pkg uuid \
+	--pkg linux \
+	--pkg rygel-energy-management-helper \
 	$(LIBRYGEL_CORE_DEPS_VALAFLAGS) \
 	$(RYGEL_COMMON_VALAFLAGS)
 

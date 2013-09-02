@@ -257,6 +257,16 @@ man(1), man(7), http://www.tldp.org/HOWTO/Man-Page/
           </para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term>
+          <option>energy-management</option>
+        </term>
+        <listitem>
+          <para>
+            Set to <userinput>true</userinput> to if you would like the UPnP device to contain a EnergyManagement service. Not that additional configuration is required, see EnergyManagement settings. 
+          </para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
   <refsect1>
@@ -269,6 +279,36 @@ man(1), man(7), http://www.tldp.org/HOWTO/Man-Page/
         </term>
         <listitem>
           <para>A semicolon-separated list of the active transcoders. This setting has no effect if <option>enable-transcoding</option> is set to <code>false</code>. Possible values are: <code>lpcm,mp3,mp2ts,aac,avc</code> or <code>wmv</code>. Its default value is <code>lpcm;mp3;mp2ts;aac;wmv</code>.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+  <refsect1>
+    <title>EnergyManagement settings</title>
+    <para>The settings in <option>[EnergyManagement-IFACENAME]</option> sections specify the settings that relate to EnergyManagement services on this interface. Example: <option>[EnergyManagement-eth0].</option></para>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>mode-on-suspend</option>
+        </term>
+        <listitem>
+          <para>The <code>NetworkInterfaceMode</code> that should be used when suspended. Default is "Unimplemented", other valid values are "IP-up-Periodic”, "IP-down-no-Wake", "IP-down-with-WakeOn", "IP-down-with-WakeAuto", "IP-down-with-WakeOnAuto".</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <option>supported-transport</option>
+        </term>
+        <listitem>
+          <para>Optional <code>WakeSupportedTransport</code> that the service should advertize. Valid values are "UDP-Broadcast", "UDP-Unicast", "TCP-Unicast", "Other".</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <option>password</option>
+        </term>
+        <listitem>
+          <para>Optional hexadecimal password that will be used to build the <code>WakeOnPattern</code>.</para>
         </listitem>
       </varlistentry>
     </variablelist>
