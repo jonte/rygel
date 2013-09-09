@@ -2,7 +2,7 @@
  * Copyright (C) 2013 Intel Corporation.
  *
  * Author: Christophe Guiraud,
- *         Jussi Kukkonen 
+ *         Jussi Kukkonen
  *
  * This file is part of Rygel.
  *
@@ -46,8 +46,8 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         ERROR_DNS_SERVER_NOT_RESOLVED,
         ERROR_INTERNAL,
         ERROR_OTHER;
-        
-        public string to_string() {
+
+        public string to_string () {
             switch (this) {
                 case SUCCESS:
                     return "Success";
@@ -58,7 +58,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
                 case ERROR_OTHER:
                     return "Error_Other";
                 default:
-                    assert_not_reached();
+                    assert_not_reached ();
             }
         }
     }
@@ -70,7 +70,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         ERROR_TIMEOUT,
         ERROR_OTHER;
 
-        public string to_string() {
+        public string to_string () {
             switch (this) {
                 case SUCCESS:
                     return "Success";
@@ -83,7 +83,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
                 case ERROR_OTHER:
                     return "Error_Other";
                 default:
-                    assert_not_reached();
+                    assert_not_reached ();
             }
         }
     }
@@ -93,7 +93,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         AUTHORITATIVE,
         NON_AUTHORITATIVE;
 
-        public string to_string() {
+        public string to_string () {
             switch (this) {
                 case NONE:
                     return "None";
@@ -102,7 +102,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
                 case NON_AUTHORITATIVE:
                     return "NonAuthoritative";
                 default:
-                    assert_not_reached();
+                    assert_not_reached ();
             }
         }
     }
@@ -133,8 +133,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
             return builder.str;
         }
 
-        public string to_xml_fragment() {
-            /* TODO limit the returned values */
+        public string to_xml_fragment () {
             return ("<Result>\n" +
                     "<Status>%s</Status>\n" +
                     "<AnswerType>%s</AnswerType>\n" +
@@ -142,12 +141,12 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
                     "<IPAddresses>%s</IPAddresses>\n" +
                     "<DNSServerIP>%s</DNSServerIP>\n" +
                     "<ResponseTime>%u</ResponseTime>\n" +
-                    "</Result>\n").printf (this.status.to_string(),
-                                           this.answer_type.to_string(),
+                    "</Result>\n").printf (this.status.to_string (),
+                                           this.answer_type.to_string (),
                                            this.returned_host_name,
                                            this.get_addresses_csv (),
                                            this.name_server_address,
-                                           this.execution_time); 
+                                           this.execution_time);
         }
     }
 
@@ -173,6 +172,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
             if (this.iterations == 0)
                 this.iterations = DEFAULT_REPETITIONS;
         }
+
         private get {
             return this.iterations;
         }
@@ -184,13 +184,22 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
     private string additional_info;
     private Timer timer = new Timer ();
 
-    public override string method_type { get { return "NSLookup"; } }
-    public override string results_type { get { return "GetNSLookupResult"; } }
+    public override string method_type {
+        get {
+            return "NSLookup";
+        }
+    }
 
-    public BasicManagementTestNSLookup(string host_name,
-                                       string? name_server,
-                                       uint repetitions,
-                                       uint32 interval_time_out) {
+    public override string results_type {
+        get {
+            return "GetNSLookupResult";
+        }
+    }
+
+    public BasicManagementTestNSLookup (string host_name,
+                                        string? name_server,
+                                        uint repetitions,
+                                        uint32 interval_time_out) {
         Object (host_name: host_name,
                 name_server: name_server,
                 repetitions: repetitions,
@@ -207,8 +216,9 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         this.command = { "nslookup",
                          "-timeout=%u".printf (this.interval_time_out/1000),
                          host_name };
-        if (name_server != null && name_server.length > 0)
+        if (name_server != null && name_server.length > 0) {
             this.command += name_server;
+        }
 
         /* Fail early if internal parameter limits are violated */
         if (this.repetitions > MAX_REPETITIONS) {
@@ -248,20 +258,23 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
                 /* quitting early */
                 this.generic_status = GenericStatus.ERROR_INTERNAL;
                 this.additional_info = "Failed to spawn nslookup";
-                this.results[results.length - 1].status = 
+                this.results[results.length - 1].status =
                                         ResultStatus.ERROR_OTHER;
+
                 break;
             case InitState.INVALID_PARAMETER:
                 /* quitting early */
-                /* constructed() has set info already */
+                /* constructed () has set info already */
                 this.generic_status = GenericStatus.ERROR_OTHER;
-                this.results[results.length - 1].status = 
+                this.results[results.length - 1].status =
                                         ResultStatus.ERROR_OTHER;
+
                 break;
             default:
                 var elapsed_msec = this.timer.elapsed (null) * 1000;
-                var execution_time = (uint)Math.round(elapsed_msec);
-                this.results[results.length - 1].execution_time = execution_time;
+                var exec_time = (uint)Math.round (elapsed_msec);
+                this.results[results.length - 1].execution_time = exec_time;
+
                 break;
         }
 
@@ -285,15 +298,17 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         var result = this.results[results.length - 1];
         line.strip ();
         if (line.has_prefix ("Server:")) {
-            if (result.state != ProcessState.INIT)
+            if (result.state != ProcessState.INIT) {
                 warning ("nslookup parser: Unexpected 'Server:' line.\n");
+            }
             result.state = ProcessState.SERVER;
         } else if (line.has_prefix ("Name:")) {
-            if (result.state == ProcessState.INIT)
+            if (result.state == ProcessState.INIT) {
                 warning ("nslookup parser: Unexpected 'Name:' line");
-            else if (result.state == ProcessState.SERVER)
-                result.returned_host_name =
-                                        line.substring ("Name:".length).strip ();
+            } else if (result.state == ProcessState.SERVER) {
+                var name = line.substring ("Name:".length).strip ();
+                result.returned_host_name = name;
+            }
             result.state = ProcessState.NAME;
         } else if (line.has_prefix ("Address:")) {
             if (result.state == ProcessState.SERVER) {
@@ -305,8 +320,9 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
                 result.status = ResultStatus.SUCCESS;
                 if (result.answer_type == AnswerType.NONE)
                     result.answer_type = AnswerType.AUTHORITATIVE;
-            } else
+            } else {
                 warning ("nslookup parser: Unexpected 'Address:' line");
+            }
         } else if (line.has_prefix ("Non-authoritative answer:")) {
             result.answer_type = AnswerType.NON_AUTHORITATIVE;
         } else if (line.contains ("server can't find")) {
@@ -323,9 +339,10 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         this.results[results.length - 1] = result;
     }
 
-
-    public void get_results(out string status, out string additional_info,
-                            out uint success_count, out string result_string) {
+    public void get_results (out string status,
+                             out string additional_info,
+                             out uint success_count,
+                             out string result_string) {
         success_count = 0;
         StringBuilder builder = new StringBuilder (HEADER);
 
@@ -337,48 +354,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         builder.append (FOOTER);
         result_string = builder.str;
 
-        status = this.generic_status.to_string();
+        status = this.generic_status.to_string ();
         additional_info = this.additional_info;
     }
-
-/*
-    //valac --pkg gio-2.0 --pkg posix -X -lm  rygel-bm-test-nslookup.vala rygel-bm-test.vala
-
-    private static int main(string[] args) {
-        MainLoop loop = new MainLoop();
-        BasicManagementTestNSLookup nslookup = new BasicManagementTestNSLookup ();
-
-        if (args.length < 2) {
-            print ("Usage: %s <hostname> [<nameserver> [<repetitions> [<timeout>]]]\n", args[0]);
-            return 0;
-        }
-        
-        try {
-            nslookup.init (args[1],
-                           args.length > 2 ? args[2] : null,
-                           args.length > 3 ? int.parse (args[3]): 0,
-                           args.length > 4 ? int.parse (args[4]) : 0);
-        } catch (BasicManagementTestError e) {
-            warning ("Incorrect parameters");
-        }
-
-        nslookup.execute.begin((obj, res)=> {
-            try {
-                string status;
-                string info;
-                string results;
-                uint count;
-                nslookup.execute.end(res);
-                nslookup.get_results (out status, out info, out count, out results);
-                print ("\nStatus: %s, %u successful iterations.\nResults:\n%s", status, count, results);
-            } catch (Error e) {
-                print ("Oops: %s\n", e.message);
-            }
-            loop.quit();
-        });
-        loop.run();
-
-        return 0;
-    }
-*/
 }

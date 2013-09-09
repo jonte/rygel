@@ -23,7 +23,6 @@
 
 using GLib;
 
-
 internal errordomain Rygel.BasicManagementTestError {
     NOT_POSSIBLE
 }
@@ -43,7 +42,7 @@ internal abstract class Rygel.BasicManagementTest : Object {
         CANCELED;
 
         /* Return values fit for A_ARG_TYPE_TestState */
-        public string to_string () { 
+        public string to_string () {
             switch (this) {
                 case REQUESTED:
                     return "Requested";
@@ -61,7 +60,7 @@ internal abstract class Rygel.BasicManagementTest : Object {
 
     public ExecutionState execution_state {
         get;
-        protected set; 
+        protected set;
         default = ExecutionState.REQUESTED;
     }
     public string id;
@@ -115,7 +114,7 @@ internal abstract class Rygel.BasicManagementTest : Object {
             this.run_iteration ();
         }
     }
-        
+
     private void child_setup () {
         /* try to prevent possible changes in output */
         Environment.set_variable("LC_MESSAGES", "C", true);
@@ -132,6 +131,7 @@ internal abstract class Rygel.BasicManagementTest : Object {
         /*if we failed to initialize, skip spawning */
         if (this.init_state != InitState.OK) {
             Idle.add ((SourceFunc)this.finish_iteration);
+
             return;
         }
 
@@ -156,7 +156,7 @@ internal abstract class Rygel.BasicManagementTest : Object {
             err_channel.add_watch (IOCondition.OUT | IOCondition.HUP,
                                    this.err_watch);
         } catch (SpawnError e) {
-            /* Let the async function yeild, then let the Test 
+            /* Let the async function yeild, then let the Test
              * implementation handle this in finish_iteration */
             this.init_state = InitState.SPAWN_FAILED;
             Idle.add ((SourceFunc)this.finish_iteration);
@@ -167,8 +167,9 @@ internal abstract class Rygel.BasicManagementTest : Object {
         try {
             string line;
             IOStatus status = channel.read_line (out line, null, null);
-            if (line != null)
+            if (line != null) {
                 this.handle_output (line);
+            }
 
             if (status == IOStatus.EOF) {
                 this.eof_count++;
@@ -178,8 +179,7 @@ internal abstract class Rygel.BasicManagementTest : Object {
                 return false;
             }
         } catch (Error e) {
-            warning ("Failed readline() from nslookup stdout: %s", e.message);
-            /* TODO set execution_state ? */
+            warning ("Failed readline() from stdout: %s", e.message);
             this.finish_iteration();
 
             return false;
@@ -192,19 +192,20 @@ internal abstract class Rygel.BasicManagementTest : Object {
         try {
             string line;
             IOStatus status = channel.read_line (out line, null, null);
-            if (line != null)
+            if (line != null) {
                 this.handle_error (line);
+            }
 
             if (status == IOStatus.EOF) {
                 this.eof_count++;
-                if (this.eof_count > 1)
+                if (this.eof_count > 1) {
                     this.finish_iteration ();
+                }
 
                 return false;
             }
         } catch (Error e) {
-            warning ("Failed readline() from nslookup stderr: %s", e.message);
-            /* TODO set execution_state ? */
+            warning ("Failed readline() from stderr: %s", e.message);
             this.finish_iteration();
 
             return false;
@@ -219,9 +220,10 @@ internal abstract class Rygel.BasicManagementTest : Object {
     }
 
     public async virtual void execute () throws BasicManagementTestError {
-        if (this.execution_state != ExecutionState.REQUESTED)
+        if (this.execution_state != ExecutionState.REQUESTED) {
             throw new BasicManagementTestError.NOT_POSSIBLE
-                                                ("Already executing or executed");
+                                        ("Already executing or executed");
+        }
 
         this.execution_state = ExecutionState.IN_PROGRESS;
         this.current_iteration = 0;
@@ -234,8 +236,9 @@ internal abstract class Rygel.BasicManagementTest : Object {
     }
 
     public void cancel () throws BasicManagementTestError {
-        if (this.execution_state != ExecutionState.IN_PROGRESS)
+        if (this.execution_state != ExecutionState.IN_PROGRESS) {
             throw new BasicManagementTestError.NOT_POSSIBLE ("Not executing");
+        }
 
         Posix.killpg (this.child_pid, Posix.SIGTERM);
 

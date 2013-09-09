@@ -50,7 +50,7 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
         ERROR_INTERNAL,
         ERROR_OTHER;
 
-        public string to_string() {
+        public string to_string () {
             switch (this) {
                 case SUCCESS:
                     return "Success";
@@ -63,7 +63,7 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
                 case ERROR_OTHER:
                     return "Error_Other";
                 default:
-                    assert_not_reached();
+                    assert_not_reached ();
             }
         }
     }
@@ -74,10 +74,15 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
     public uint32 wait_time_out {
         construct {
             this._wait_time_out = value;
-            if (this._wait_time_out == 0)
+            if (this._wait_time_out == 0) {
                 this._wait_time_out = DEFAULT_TIMEOUT;
+            }
         }
-        get { return this._wait_time_out; }
+
+        get {
+            return this._wait_time_out;
+        }
+
         default = DEFAULT_TIMEOUT;
     }
 
@@ -85,10 +90,15 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
     public uint data_block_size {
         construct {
             this._data_block_size = value;
-            if (this._data_block_size == 0)
+            if (this._data_block_size == 0) {
                 this._data_block_size = DEFAULT_DATA_BLOCK_SIZE;
+            }
         }
-        get { return this._data_block_size; }
+
+        get {
+            return this._data_block_size;
+        }
+
         default = DEFAULT_DATA_BLOCK_SIZE;
     }
 
@@ -96,10 +106,15 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
     public uint max_hop_count {
         construct {
             this._max_hop_count = value;
-            if (this._max_hop_count == 0)
+            if (this._max_hop_count == 0) {
                 this._max_hop_count = DEFAULT_HOPS;
+            }
         }
-        get { return this._max_hop_count; }
+
+        get {
+            return this._max_hop_count;
+        }
+
         default = DEFAULT_HOPS;
     }
 
@@ -107,10 +122,15 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
     public uint dscp {
         construct {
             this._dscp = value;
-            if (this._dscp == 0)
+            if (this._dscp == 0) {
                 this._dscp = DEFAULT_DSCP;
+            }
         }
-        get { return this._dscp; }
+
+        get {
+            return this._dscp;
+        }
+
         default = DEFAULT_DSCP;
     }
 
@@ -124,8 +144,17 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
     private uint32 response_time;
     private string hop_ips;
 
-    public override string method_type { get { return "Traceroute"; } }
-    public override string results_type { get { return "GetTracerouteResult"; } }
+    public override string method_type {
+        get {
+            return "Traceroute";
+        }
+    }
+
+    public override string results_type {
+        get {
+            return "GetTracerouteResult";
+        }
+    }
 
     public BasicManagementTestTraceroute (string host,
                                           uint32 wait_time_out,
@@ -160,7 +189,7 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
                          "-t", (this.dscp >> 2).to_string (),
                          "-n",
                          this.host,
-                         this.data_block_size.to_string () };   
+                         this.data_block_size.to_string () };
 
         /* Fail early if internal parameter limits are violated */
         if (this.wait_time_out < MIN_TIMEOUT ||
@@ -219,34 +248,37 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
                 this.state = ProcessState.HOPS;
                 var start = line.index_of_char ('(');
                 var end = line.index_of_char (')', start);
-                if (end > start)
+                if (end > start) {
                     this.host_ip = line.slice (start + 1, end);
+                }
             } else {
                 warning ("traceroute parser: Unexpected line '%s'", line);
             }
             break;
         case ProcessState.HOPS:
-            if (line.contains (" !H "))
+            if (line.contains (" !H ")) {
                 error = "Host is unreachable.";
-            else if (line.contains (" !N "))
+            } else if (line.contains (" !N ")) {
                 error = "Network is unreachable.";
-            else if (line.contains (" !P "))
+            } else if (line.contains (" !P ")) {
                 error = "Protocol is unreachable.";
-            else if (line.contains (" !S "))
+            } else if (line.contains (" !S ")) {
                 error = "Source route failed.";
-            else if (line.contains (" !F "))
+            } else if (line.contains (" !F ")) {
                 error = "Fragmentation needed.";
-            else if (line.contains (" !X "))
+            } else if (line.contains (" !X ")) {
                 error = "Network blocks traceroute.";
+            }
 
             if (error != null) {
-                /* should ERROR_CANNOT_RESOLVE_HOSTNAME be used for some errors ? */
                 this.set_error (Status.ERROR_OTHER, error);
+
                 return;
             }
             MatchInfo info;
             if (!regex.match (line, 0, out info)) {
                 warning ("traceroute parser: Unexpected line '%s'", line);
+
                 return;
             }
 
@@ -256,13 +288,14 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
                     this.status = Status.SUCCESS;
                 } else {
                     /* set this error as placeholder: normally a later
-                     * handle_output() call will set status to SUCCESS */
+                     * handle_output () call will set status to SUCCESS */
                     this.status = Status.ERROR_MAX_HOP_COUNT_EXCEEDED;
                 }
             }
 
-            if (ip_address == "*")
+            if (ip_address == "*") {
                 ip_address = "";
+            }
 
             var rtt_string = info.fetch (3);
             rtt_regex.match (rtt_string, 0, out info);
@@ -278,12 +311,14 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
                 warning ("Regex error while parsing rtt values: %s", e.message);
             }
 
-            if (rtt_count > 0)
+            if (rtt_count > 0) {
                 rtt_average = rtt_average / rtt_count;
+            }
 
             this.response_time = (uint) Math.round (rtt_average);
-            if (this.hop_ips.length != 0)
+            if (this.hop_ips.length != 0) {
                 this.hop_ips += ",";
+            }
             this.hop_ips += ip_address;
 
             break;
@@ -291,8 +326,10 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
             assert_not_reached ();
         }
     }
-    public void get_results(out string status, out string additional_info,
-                            out uint32 response_time, out string hop_ips) {
+    public void get_results (out string status,
+                             out string additional_info,
+                             out uint32 response_time,
+                             out string hop_ips) {
         status = this.status.to_string ();
         additional_info = this.additional_info;
         response_time = this.response_time;

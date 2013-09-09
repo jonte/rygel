@@ -30,11 +30,10 @@ using GUPnP;
  */
 public class Rygel.BasicManagement : Service {
     public const string UPNP_ID = "urn:upnp-org:serviceId:BasicManagement";
-    public const string UPNP_TYPE =
-                        "urn:schemas-upnp-org:service:BasicManagement:2";
+    public const string UPNP_TYPE = "urn:schemas-upnp-org:service:BasicManagement:2";
     public const string DESCRIPTION_PATH = "xml/BasicManagement2.xml";
 
-    public uint max_history_size { get; set; default = 10;}
+    public uint max_history_size { get; set; default = 10; }
 
     private HashMap<string, BasicManagementTest> tests_map;
     private HashMap<string, LinkedList<string>> test_ids_by_type;
@@ -55,44 +54,38 @@ public class Rygel.BasicManagement : Service {
 
         this.query_variable["DeviceStatus"].connect
                                         (this.query_device_status_cb);
-        this.query_variable["TestIDs"].connect
-                                        (this.query_test_ids_cb);
+        this.query_variable["TestIDs"].connect (this.query_test_ids_cb);
         this.query_variable["ActiveTestIDs"].connect
                                         (this.query_active_test_ids_cb);
 
         this.action_invoked["GetDeviceStatus"].connect
                                         (this.get_device_status_cb);
-        this.action_invoked["Ping"].connect
-                                        (this.ping_cb);
-        this.action_invoked["GetPingResult"].connect
-                                        (this.ping_result_cb);
-        this.action_invoked["NSLookup"].connect
-                                        (this.nslookup_cb);
+        this.action_invoked["Ping"].connect (this.ping_cb);
+        this.action_invoked["GetPingResult"].connect (this.ping_result_cb);
+        this.action_invoked["NSLookup"].connect (this.nslookup_cb);
         this.action_invoked["GetNSLookupResult"].connect
                                         (this.nslookup_result_cb);
-        this.action_invoked["Traceroute"].connect
-                                        (this.traceroute_cb);
+        this.action_invoked["Traceroute"].connect (this.traceroute_cb);
         this.action_invoked["GetTracerouteResult"].connect
                                         (this.traceroute_result_cb);
-        this.action_invoked["GetTestIDs"].connect
-                                        (this.get_test_ids_cb);
+        this.action_invoked["GetTestIDs"].connect (this.get_test_ids_cb);
         this.action_invoked["GetActiveTestIDs"].connect
                                         (this.get_active_test_ids_cb);
-        this.action_invoked["GetTestInfo"].connect
-                                        (this.get_test_info_cb);
-        this.action_invoked["CancelTest"].connect
-                                        (this.cancel_test_cb);
+        this.action_invoked["GetTestInfo"].connect (this.get_test_info_cb);
+        this.action_invoked["CancelTest"].connect (this.cancel_test_cb);
     }
 
     private string create_test_ids_list (bool active_only) {
         string test_ids_list = "";
 
         foreach (var test in this.tests_map.values) {
-            if (active_only && !test.is_active())
+            if (active_only && !test.is_active ()) {
                 continue;
+            }
 
-            if (test_ids_list.length > 0)
+            if (test_ids_list.length > 0) {
                 test_ids_list += ",";
+            }
 
             test_ids_list += test.id;
         }
@@ -106,8 +99,10 @@ public class Rygel.BasicManagement : Service {
 
         this.tests_map.set (test.id, test);
 
-        /* Add test to a list of ids of that method type (creating the list if needed) */
-        LinkedList<string> type_test_ids = this.test_ids_by_type[test.method_type];
+        /* Add test to a list of ids of that method type
+           (creating the list if needed) */
+        LinkedList<string> type_test_ids;
+        type_test_ids = this.test_ids_by_type[test.method_type];
         if (type_test_ids == null) {
             type_test_ids = new LinkedList<string> ();
             this.test_ids_by_type.set (test.method_type, type_test_ids);
@@ -119,22 +114,23 @@ public class Rygel.BasicManagement : Service {
             var old_id = type_test_ids.poll_head ();
 
             try {
-                this.tests_map[old_id].cancel();
+                this.tests_map[old_id].cancel ();
             } catch (BasicManagementTestError e) {
                 /* test was not running, not a problem */
             }
             this.tests_map.unset (old_id);
         }
 
-        this.notify ("TestIDs", typeof (string),
-                     create_test_ids_list (false));
-        this.notify ("ActiveTestIDs", typeof (string),
+        this.notify ("TestIDs", typeof (string), create_test_ids_list (false));
+        this.notify ("ActiveTestIDs",
+                     typeof (string),
                      create_test_ids_list (true));
+
         return test.id;
     }
 
     private void add_test_and_return_action (BasicManagementTest bm_test,
-                                             ServiceAction action) {
+                                             ServiceAction       action) {
         var id = this.add_test (bm_test);
 
         /* TODO: decide if test should really execute now */
@@ -144,18 +140,18 @@ public class Rygel.BasicManagement : Service {
             } catch (BasicManagementTestError e) {
                 /* already executing */
             }
-            this.notify ("ActiveTestIDs", typeof (string),
+
+            this.notify ("ActiveTestIDs",
+                         typeof (string),
                          create_test_ids_list (true));
         });
 
-        action.set ("TestID",
-                        typeof (string),
-                        id);
+        action.set ("TestID", typeof (string), id);
 
         action.return ();
     }
 
-    private bool ensure_test_exists (ServiceAction action,
+    private bool ensure_test_exists (ServiceAction           action,
                                      out BasicManagementTest bm_test) {
 
         string test_id;
@@ -163,30 +159,31 @@ public class Rygel.BasicManagement : Service {
         action.get ("TestID", typeof (string), out test_id);
 
         bm_test = this.tests_map[test_id];
+        var action_name = action.get_name ();
 
         if (bm_test == null) {
             /// No test with the specified TestID was found
             action.return_error (706, _("No Such Test"));
 
             return false;
-        } else if ((bm_test.results_type != action.get_name()) &&
-                   ((action.get_name() == "GetPingResult") ||
-                    (action.get_name() == "GetNSLookupResult") ||
-                    (action.get_name() == "GetTracerouteResult"))) {
+        } else if ((bm_test.results_type != action_name) &&
+                   ((action_name == "GetPingResult") ||
+                    (action_name == "GetNSLookupResult") ||
+                    (action_name == "GetTracerouteResult"))) {
             /// TestID is valid but refers to the wrong test type
             action.return_error (707, _("Wrong Test Type"));
 
             return false;
         } else if ((bm_test.execution_state != BasicManagementTest.ExecutionState.COMPLETED) &&
-                   ((action.get_name() == "GetPingResult") ||
-                    (action.get_name() == "GetNSLookupResult") ||
-                    (action.get_name() == "GetTracerouteResult"))) {
+                   ((action_name == "GetPingResult") ||
+                    (action_name == "GetNSLookupResult") ||
+                    (action_name == "GetTracerouteResult"))) {
             /// TestID is valid but the test Results are not available
             action.return_error (708, _("Invalid Test State '%s'").printf (
-                                        bm_test.execution_state.to_string()));
+                                        bm_test.execution_state.to_string ()));
 
             return false;
-        } else if ((action.get_name() == "CancelTest") && !bm_test.is_active()) {
+        } else if ((action_name == "CancelTest") && !bm_test.is_active ()) {
             /// TestID is valid but the test can't be canceled
             action.return_error (709, _("State '%s' Precludes Cancel").printf (
                                         bm_test.execution_state.to_string ()));
@@ -197,28 +194,28 @@ public class Rygel.BasicManagement : Service {
         return true;
     }
 
-    private void query_device_status_cb (Service   cm,
+    private void query_device_status_cb (Service   bm,
                                          string    var,
                                          ref Value val) {
         val.init (typeof (string));
         val.set_string (device_status);
     }
 
-    private void query_test_ids_cb (Service   cm,
+    private void query_test_ids_cb (Service   bm,
                                     string    var,
                                     ref Value val) {
         val.init (typeof (string));
         val.set_string (create_test_ids_list (false));
     }
 
-    private void query_active_test_ids_cb (Service   cm,
+    private void query_active_test_ids_cb (Service   bm,
                                            string    var,
                                            ref Value val) {
         val.init (typeof (string));
         val.set_string (create_test_ids_list (true));
     }
 
-    private void get_device_status_cb (Service             cm,
+    private void get_device_status_cb (Service       bm,
                                        ServiceAction action) {
         if (action.get_argument_count () != 0) {
             action.return_error (402, _("Invalid argument"));
@@ -233,7 +230,7 @@ public class Rygel.BasicManagement : Service {
         action.return ();
     }
 
-    private void ping_cb (Service             cm,
+    private void ping_cb (Service       bm,
                           ServiceAction action) {
         if (action.get_argument_count () != 5) {
             action.return_error (402, _("Invalid argument"));
@@ -261,13 +258,15 @@ public class Rygel.BasicManagement : Service {
                         typeof (uint),
                         out dscp);
 
-        var ping = new BasicManagementTestPing(host, repeat_count,
-                                               interval_time_out,
-                                               data_block_size, dscp);
+        var ping = new BasicManagementTestPing (host,
+                                                repeat_count,
+                                                interval_time_out,
+                                                data_block_size,
+                                                dscp);
         this.add_test_and_return_action (ping as BasicManagementTest, action);
     }
 
-    private void ping_result_cb (Service             cm,
+    private void ping_result_cb (Service       bm,
                                  ServiceAction action) {
         if (action.get_argument_count () != 1) {
             action.return_error (402, _("Invalid argument"));
@@ -285,13 +284,14 @@ public class Rygel.BasicManagement : Service {
         uint success_count, failure_count;
         uint32 avg_response_time, min_response_time, max_response_time;
 
-        (bm_test as BasicManagementTestPing).get_results (out status,
-                                             out additional_info,
-                                             out success_count,
-                                             out failure_count,
-                                             out avg_response_time,
-                                             out min_response_time,
-                                             out max_response_time);
+        (bm_test as BasicManagementTestPing).get_results
+                                        (out status,
+                                         out additional_info,
+                                         out success_count,
+                                         out failure_count,
+                                         out avg_response_time,
+                                         out min_response_time,
+                                         out max_response_time);
 
         action.set ("Status",
                         typeof (string),
@@ -318,7 +318,7 @@ public class Rygel.BasicManagement : Service {
         action.return ();
     }
 
-    private void nslookup_cb (Service             cm,
+    private void nslookup_cb (Service       bm,
                               ServiceAction action) {
         if (action.get_argument_count () != 4) {
             action.return_error (402, _("Invalid argument"));
@@ -344,15 +344,15 @@ public class Rygel.BasicManagement : Service {
                         typeof (uint32),
                         out interval_time_out);
 
-        var nslookup = new BasicManagementTestNSLookup(hostname,
-                                                       dns_server,
-                                                       repeat_count,
-                                                       interval_time_out);
+        var nslookup = new BasicManagementTestNSLookup (hostname,
+                                                        dns_server,
+                                                        repeat_count,
+                                                        interval_time_out);
         this.add_test_and_return_action (nslookup as BasicManagementTest,
                                          action);
     }
 
-    private void nslookup_result_cb (Service             cm,
+    private void nslookup_result_cb (Service       bm,
                                      ServiceAction action) {
         if (action.get_argument_count () != 1) {
             action.return_error (402, _("Invalid argument"));
@@ -369,10 +369,11 @@ public class Rygel.BasicManagement : Service {
         string status, additional_info, result;
         uint success_count;
 
-        (bm_test as BasicManagementTestNSLookup).get_results (out status,
-                                                 out additional_info,
-                                                 out success_count,
-                                                 out result);
+        (bm_test as BasicManagementTestNSLookup).get_results
+                                        (out status,
+                                         out additional_info,
+                                         out success_count,
+                                         out result);
 
         action.set ("Status",
                         typeof (string),
@@ -390,7 +391,7 @@ public class Rygel.BasicManagement : Service {
         action.return ();
     }
 
-    private void traceroute_cb (Service             cm,
+    private void traceroute_cb (Service       bm,
                                 ServiceAction action) {
         if (action.get_argument_count () != 5) {
             action.return_error (402, _("Invalid argument"));
@@ -418,14 +419,16 @@ public class Rygel.BasicManagement : Service {
                         typeof (uint),
                         out dscp);
 
-        var traceroute = new BasicManagementTestTraceroute(host, wait_time_out,
-                                                           data_block_size,
-                                                           max_hop_count, dscp);
+        var traceroute = new BasicManagementTestTraceroute (host,
+                                                            wait_time_out,
+                                                            data_block_size,
+                                                            max_hop_count,
+                                                            dscp);
         this.add_test_and_return_action (traceroute as BasicManagementTest,
                                          action);
     }
 
-    private void traceroute_result_cb (Service             cm,
+    private void traceroute_result_cb (Service       bm,
                                        ServiceAction action) {
         if (action.get_argument_count () != 1) {
             action.return_error (402, _("Invalid argument"));
@@ -442,10 +445,11 @@ public class Rygel.BasicManagement : Service {
         string status, additional_info, hop_hosts;
         uint32 response_time;
 
-        (bm_test as BasicManagementTestTraceroute).get_results (out status,
-                                                   out additional_info,
-                                                   out response_time,
-                                                   out hop_hosts);
+        (bm_test as BasicManagementTestTraceroute).get_results
+                                        (out status,
+                                         out additional_info,
+                                         out response_time,
+                                         out hop_hosts);
 
         action.set ("Status",
                         typeof (string),
@@ -463,7 +467,7 @@ public class Rygel.BasicManagement : Service {
         action.return ();
     }
 
-    private void get_test_ids_cb (Service             cm,
+    private void get_test_ids_cb (Service       bm,
                                   ServiceAction action) {
         if (action.get_argument_count () != 0) {
             action.return_error (402, _("Invalid argument"));
@@ -478,7 +482,7 @@ public class Rygel.BasicManagement : Service {
         action.return ();
     }
 
-    private void get_active_test_ids_cb (Service             cm,
+    private void get_active_test_ids_cb (Service       bm,
                                          ServiceAction action) {
         if (action.get_argument_count () != 0) {
             action.return_error (402, _("Invalid argument"));
@@ -493,7 +497,7 @@ public class Rygel.BasicManagement : Service {
         action.return ();
     }
 
-    private void get_test_info_cb (Service             cm,
+    private void get_test_info_cb (Service       bm,
                                    ServiceAction action) {
         if (action.get_argument_count () != 1) {
             action.return_error (402, _("Invalid argument"));
@@ -512,12 +516,12 @@ public class Rygel.BasicManagement : Service {
                         bm_test.method_type,
                     "State",
                         typeof (string),
-                        bm_test.execution_state.to_string());
+                        bm_test.execution_state.to_string ());
 
         action.return ();
     }
 
-    private void cancel_test_cb (Service             cm,
+    private void cancel_test_cb (Service       bm,
                                  ServiceAction action) {
         if (action.get_argument_count () != 1) {
             action.return_error (402, _("Invalid argument"));
@@ -532,11 +536,11 @@ public class Rygel.BasicManagement : Service {
         }
 
         try {
-            bm_test.cancel();
+            bm_test.cancel ();
         } catch (BasicManagementTestError e) {
             warning ("Canceled test was not running\n");
         }
-        /* ActiveTestIDs notification is handled by 
+        /* ActiveTestIDs notification is handled by
          * the tests' execute callback */
 
         action.return ();

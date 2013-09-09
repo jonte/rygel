@@ -49,7 +49,7 @@ internal class Rygel.BasicManagementTestPing : BasicManagementTest {
         ERROR_INTERNAL,
         ERROR_OTHER;
 
-        public string to_string() {
+        public string to_string () {
             switch (this) {
                 case SUCCESS:
                     return "Success";
@@ -60,7 +60,7 @@ internal class Rygel.BasicManagementTestPing : BasicManagementTest {
                 case ERROR_OTHER:
                     return "Error_Other";
                 default:
-                    assert_not_reached();
+                    assert_not_reached ();
             }
         }
     }
@@ -71,10 +71,15 @@ internal class Rygel.BasicManagementTestPing : BasicManagementTest {
     public uint repeat_count {
         construct {
             this._repeat_count = value;
-            if (this._repeat_count == 0)
+            if (this._repeat_count == 0) {
                 this._repeat_count = DEFAULT_REPEAT_COUNT;
+            }
         }
-        get { return this._repeat_count; }
+
+        get {
+            return this._repeat_count;
+        }
+
         default = DEFAULT_REPEAT_COUNT;
     }
 
@@ -82,10 +87,15 @@ internal class Rygel.BasicManagementTestPing : BasicManagementTest {
     public uint data_block_size {
         construct {
             this._data_block_size = value;
-            if (this._data_block_size == 0)
+            if (this._data_block_size == 0) {
                 this._data_block_size = DEFAULT_DATA_BLOCK_SIZE;
+            }
         }
-        get { return this._data_block_size; }
+
+        get {
+            return this._data_block_size;
+        }
+
         default = DEFAULT_DATA_BLOCK_SIZE;
     }
 
@@ -93,10 +103,15 @@ internal class Rygel.BasicManagementTestPing : BasicManagementTest {
     public uint dscp {
         construct {
             this._dscp = value;
-            if (this._dscp == 0)
+            if (this._dscp == 0) {
                 this._dscp = DEFAULT_DSCP;
+            }
         }
-        get { return this._dscp; }
+
+        get {
+            return this._dscp;
+        }
+
         default = DEFAULT_DSCP;
     }
 
@@ -104,10 +119,15 @@ internal class Rygel.BasicManagementTestPing : BasicManagementTest {
     public uint32 interval_time_out {
         construct {
             this._interval_time_out = value;
-            if (this._interval_time_out == 0)
+            if (this._interval_time_out == 0) {
                 this._interval_time_out = DEFAULT_REQUEST_INTERVAL_TIMEOUT;
+            }
         }
-        get { return _interval_time_out; }
+
+        get {
+            return _interval_time_out;
+        }
+
         default = DEFAULT_REQUEST_INTERVAL_TIMEOUT;
     }
 
@@ -121,8 +141,17 @@ internal class Rygel.BasicManagementTestPing : BasicManagementTest {
     private uint32 min_response_time;
     private uint32 max_response_time;
 
-    public override string method_type { get { return "Ping"; } }
-    public override string results_type { get { return "GetPingResult"; } }
+    public override string method_type {
+        get {
+            return "Ping";
+        }
+    }
+
+    public override string results_type {
+        get {
+            return "GetPingResult";
+        }
+    }
 
     public BasicManagementTestPing (string host,
                                     uint repeat_count,
@@ -229,23 +258,25 @@ internal class Rygel.BasicManagementTestPing : BasicManagementTest {
                 if (rtt.length >= 2) {
                     var rtt_values = rtt[1].split ("/", 4);
                     if (rtt_values.length >= 3) {
-                        this.min_response_time = (uint) Math.round (
-                                                  double.parse (rtt_values[0]));
-                        this.avg_response_time = (uint) Math.round (
-                                                  double.parse (rtt_values[1]));
-                        this.max_response_time = (uint) Math.round (
-                                                  double.parse (rtt_values[2]));
+                        this.min_response_time = (uint) Math.round
+                                        (double.parse (rtt_values[0]));
+                        this.avg_response_time = (uint) Math.round
+                                        (double.parse (rtt_values[1]));
+                        this.max_response_time = (uint) Math.round
+                                        (double.parse (rtt_values[2]));
                     }
                 }
             }
         }
     }
 
-    public void get_results(out string status, out string additional_info,
-                            out uint success_count, out uint failure_count,
-                            out uint32 avg_response_time,
-                            out uint32 min_response_time,
-                            out uint32 max_response_time) {
+    public void get_results (out string status,
+                             out string additional_info,
+                             out uint success_count,
+                             out uint failure_count,
+                             out uint32 avg_response_time,
+                             out uint32 min_response_time,
+                             out uint32 max_response_time) {
         status = this.status.to_string ();
         additional_info = this.additional_info;
         success_count = this.success_count;
