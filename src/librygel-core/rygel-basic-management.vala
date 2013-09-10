@@ -133,7 +133,9 @@ public class Rygel.BasicManagement : Service {
                                              ServiceAction       action) {
         var id = this.add_test (bm_test);
 
-        /* TODO: decide if test should really execute now */
+        /* NOTE: it might be useful queue the execution but this is not
+         * currently done: if "BandwidthTest" is implemented queueing is
+         * practically required. */
         bm_test.execute.begin ((obj,res) => {
             try {
                 bm_test.execute.end (res);
