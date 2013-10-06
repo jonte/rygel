@@ -15,6 +15,11 @@ AC_PROG_CC
 AC_HEADER_STDC
 AC_FUNC_MMAP
 
+RYGEL_API_VERSION=2.2
+AC_SUBST(RYGEL_API_VERSION)
+RYGEL_API_VERSION_UNDERSCORE=2_2
+AC_SUBST(RYGEL_API_VERSION_UNDERSCORE)
+
 AC_SUBST(abs_top_builddir)
 AC_SUBST(VERSION)
 
@@ -401,9 +406,9 @@ AM_CONDITIONAL(ENABLE_VALADOC, test x$found_valadoc = xyes)
 AC_SUBST([RYGEL_PLUGIN_LINKER_FLAGS],
          ["-module -avoid-version -Wl,-z,defs"])
 AC_SUBST([RYGEL_PLUGIN_DIR],
-         [${libdir}/rygel-2.2/plugins])
+         [${libdir}/rygel-${RYGEL_API_VERSION}/plugins])
 AC_SUBST([RYGEL_MEDIA_ENGINE_DIR],
-         [${libdir}/rygel-2.2/engines])
+         [${libdir}/rygel-${RYGEL_API_VERSION}/engines])
 
 AC_CONFIG_FILES([
 Makefile
@@ -439,10 +444,10 @@ doc/reference/librygel-renderer/Makefile
 doc/reference/librygel-server/Makefile
 doc/reference/librygel-renderer-gst/Makefile
 po/Makefile.in
-rygel-core-2.2.pc
-rygel-renderer-2.2.pc
-rygel-server-2.2.pc
-rygel-renderer-gst-2.2.pc
+rygel-core-${RYGEL_API_VERSION}.pc
+rygel-renderer-${RYGEL_API_VERSION}.pc
+rygel-server-${RYGEL_API_VERSION}.pc
+rygel-renderer-gst-${RYGEL_API_VERSION}.pc
 tests/Makefile
 examples/Makefile
 examples/renderer-plugins/Makefile
