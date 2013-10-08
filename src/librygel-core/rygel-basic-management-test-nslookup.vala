@@ -252,7 +252,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         this.timer.start ();
     }
 
-    protected override void finish_iteration () {
+    protected override bool finish_iteration () {
         switch (this.init_state) {
             case InitState.SPAWN_FAILED:
                 /* quitting early */
@@ -278,7 +278,7 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
                 break;
         }
 
-        base.finish_iteration ();
+        return base.finish_iteration ();
     }
 
     protected override void handle_error (string line) {

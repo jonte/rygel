@@ -217,13 +217,13 @@ internal class Rygel.BasicManagementTestPing : BasicManagementTest {
         }
     }
 
-    protected override void finish_iteration () {
+    protected override bool finish_iteration () {
         if (this.init_state == InitState.SPAWN_FAILED) {
             this.status = Status.ERROR_INTERNAL;
             this.additional_info = "Failed to spawn ping";
         }
 
-        base.finish_iteration ();
+        return base.finish_iteration ();
     }
 
     protected override void handle_error (string line) {

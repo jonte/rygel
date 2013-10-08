@@ -93,7 +93,7 @@ internal abstract class Rygel.BasicManagementTest : Object {
     protected virtual void handle_error (string line) {
         warning ("%s stderr: %s", command[0], line);
     }
-    protected virtual void finish_iteration () {
+    protected virtual bool finish_iteration () {
         this.current_iteration++;
 
         /* No more iterations if
@@ -113,6 +113,8 @@ internal abstract class Rygel.BasicManagementTest : Object {
         } else {
             this.run_iteration ();
         }
+
+        return false;
     }
 
     private void child_setup () {
