@@ -23,11 +23,23 @@
 
 using GLib;
 
-internal errordomain Rygel.BasicManagementTestError {
-    NOT_POSSIBLE
-}
+internal abstract class Rygel.BasicManagementTest : Object, StateMachine {
+    protected Cancellable _cancellable;
+    public Cancellable cancellable {
+        get {
+            return this._cancellable;
+        }
+        set {
+            this._cancellable = value;
+            this._cancellable.cancelled.connect (() => {
+                if (this.execution_state == ExecutionState.IN_PROGRESS) {
+                    Posix.killpg (this.child_pid, Posix.SIGTERM);
+                    this.execution_state = ExecutionState.CANCELED;
+                }
+            });
+        }
+    }
 
-internal abstract class Rygel.BasicManagementTest : Object {
     protected enum InitState {
         OK,
         SPAWN_FAILED,
@@ -82,7 +94,7 @@ internal abstract class Rygel.BasicManagementTest : Object {
     private SourceFunc async_callback;
     private uint current_iteration;
 
-    /* These virtual/abstract functions will be called from execute():
+    /* These virtual/abstract functions will be called from run ():
      * - For every iteration:
      *    - init_iteration()
      *    - calls to handle_output() and handle_error(),
@@ -221,29 +233,21 @@ internal abstract class Rygel.BasicManagementTest : Object {
                this.execution_state == ExecutionState.IN_PROGRESS;
     }
 
-    public async virtual void execute () throws BasicManagementTestError {
+    public async virtual void run () {
         if (this.execution_state != ExecutionState.REQUESTED) {
-            throw new BasicManagementTestError.NOT_POSSIBLE
-                                        ("Already executing or executed");
+            warning ("Test already started");
+            return;
         }
-
+        if (this.cancellable == null)
+            this.cancellable = new Cancellable ();
         this.execution_state = ExecutionState.IN_PROGRESS;
         this.current_iteration = 0;
-        this.async_callback = execute.callback;
+        this.async_callback = run.callback;
 
         this.run_iteration ();
         yield;
 
+        this.completed ();
         return;
-    }
-
-    public void cancel () throws BasicManagementTestError {
-        if (this.execution_state != ExecutionState.IN_PROGRESS) {
-            throw new BasicManagementTestError.NOT_POSSIBLE ("Not executing");
-        }
-
-        Posix.killpg (this.child_pid, Posix.SIGTERM);
-
-        this.execution_state = ExecutionState.CANCELED;
     }
 }

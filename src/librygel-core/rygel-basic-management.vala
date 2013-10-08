@@ -113,11 +113,7 @@ public class Rygel.BasicManagement : Service {
         if (type_test_ids.size > this.max_history_size) {
             var old_id = type_test_ids.poll_head ();
 
-            try {
-                this.tests_map[old_id].cancel ();
-            } catch (BasicManagementTestError e) {
-                /* test was not running, not a problem */
-            }
+            this.tests_map[old_id].cancellable.cancel ();
             this.tests_map.unset (old_id);
         }
 
@@ -136,13 +132,8 @@ public class Rygel.BasicManagement : Service {
         /* NOTE: it might be useful queue the execution but this is not
          * currently done: if "BandwidthTest" is implemented queueing is
          * practically required. */
-        bm_test.execute.begin ((obj,res) => {
-            try {
-                bm_test.execute.end (res);
-            } catch (BasicManagementTestError e) {
-                /* already executing */
-            }
-
+        bm_test.run.begin ((obj,res) => {
+            bm_test.run.end (res);
             this.notify ("ActiveTestIDs",
                          typeof (string),
                          create_test_ids_list (true));
@@ -537,13 +528,10 @@ public class Rygel.BasicManagement : Service {
             return;
         }
 
-        try {
-            bm_test.cancel ();
-        } catch (BasicManagementTestError e) {
-            warning ("Canceled test was not running\n");
-        }
+        bm_test.cancellable.cancel ();
+
         /* ActiveTestIDs notification is handled by
-         * the tests' execute callback */
+         * the tests' run callback */
 
         action.return ();
     }
