@@ -282,20 +282,18 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
     }
 
     protected override void handle_error (string line) {
-        var result = this.results[results.length - 1];
+        unowned Result* result = &this.results[results.length - 1];
 
         if (line.contains ("couldn't get address for")) {
             this.generic_status = GenericStatus.ERROR_DNS_SERVER_NOT_RESOLVED;
             this.execution_state = ExecutionState.COMPLETED;
             result.status = ResultStatus.ERROR_DNS_SERVER_NOT_AVAILABLE;
         }
-
-        /* there has to be a nicer way to do this... */
-        this.results[results.length - 1] = result;
     }
 
     protected override void handle_output (string line) {
-        var result = this.results[results.length - 1];
+        unowned Result* result = &this.results[results.length - 1];
+
         line.strip ();
         if (line.has_prefix ("Server:")) {
             if (result.state != ProcessState.INIT) {
@@ -335,8 +333,6 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
             result.status = ResultStatus.ERROR_DNS_SERVER_NOT_AVAILABLE;
         }
 
-        /* there has to be a nicer way to do this... */
-        this.results[results.length - 1] = result;
     }
 
     public void get_results (out string status,
