@@ -103,7 +103,7 @@ internal abstract class Rygel.BasicManagementTest : Object, StateMachine {
     protected virtual void init_iteration () {}
     protected virtual void handle_output (string line) {}
     protected virtual void handle_error (string line) {
-        warning ("%s stderr: %s", command[0], line);
+        debug ("%s stderr: %s", command[0], line);
     }
     protected virtual bool finish_iteration () {
         this.current_iteration++;
@@ -131,7 +131,7 @@ internal abstract class Rygel.BasicManagementTest : Object, StateMachine {
 
     private void child_setup () {
         /* try to prevent possible changes in output */
-        Environment.set_variable("LC_MESSAGES", "C", true);
+        Environment.set_variable ("LC_MESSAGES", "C", true);
 
         /* Create new session to detach from tty, but set a process
          * group so all children can be ḱilled if need be */
@@ -144,7 +144,7 @@ internal abstract class Rygel.BasicManagementTest : Object, StateMachine {
 
         /*if we failed to initialize, skip spawning */
         if (this.init_state != InitState.OK) {
-            Idle.add ((SourceFunc)this.finish_iteration);
+            Idle.add (this.finish_iteration);
 
             return;
         }
@@ -173,7 +173,7 @@ internal abstract class Rygel.BasicManagementTest : Object, StateMachine {
             /* Let the async function yeild, then let the Test
              * implementation handle this in finish_iteration */
             this.init_state = InitState.SPAWN_FAILED;
-            Idle.add ((SourceFunc)this.finish_iteration);
+            Idle.add (this.finish_iteration);
         }
     }
 
@@ -187,14 +187,17 @@ internal abstract class Rygel.BasicManagementTest : Object, StateMachine {
 
             if (status == IOStatus.EOF) {
                 this.eof_count++;
-                if (this.eof_count > 1)
+                if (this.eof_count > 1) {
                     this.finish_iteration ();
+                }
 
                 return false;
             }
         } catch (Error e) {
-            warning ("Failed readline() from stdout: %s", e.message);
-            this.finish_iteration();
+            warning (_("Failed to read standard output from %s: %s"),
+                     this.method_type,
+                     e.message);
+            this.finish_iteration ();
 
             return false;
         }
@@ -219,8 +222,10 @@ internal abstract class Rygel.BasicManagementTest : Object, StateMachine {
                 return false;
             }
         } catch (Error e) {
-            warning ("Failed readline() from stderr: %s", e.message);
-            this.finish_iteration();
+            warning (_("Failed to read error output from %s: %s"),
+                     this.method_type,
+                     e.message);
+            this.finish_iteration ();
 
             return false;
         }
@@ -235,11 +240,13 @@ internal abstract class Rygel.BasicManagementTest : Object, StateMachine {
 
     public async virtual void run () {
         if (this.execution_state != ExecutionState.REQUESTED) {
-            warning ("Test already started");
+            debug ("Not running test: already started");
+
             return;
         }
-        if (this.cancellable == null)
+        if (this.cancellable == null) {
             this.cancellable = new Cancellable ();
+        }
         this.execution_state = ExecutionState.IN_PROGRESS;
         this.current_iteration = 0;
         this.async_callback = run.callback;

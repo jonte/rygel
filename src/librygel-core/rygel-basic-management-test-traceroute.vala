@@ -175,7 +175,7 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
             this.regex = new Regex ("^\\s*(\\d+)\\s+(\\S+)\\s*(.*)$", 0, 0);
             this.rtt_regex = new Regex ("(\\S+)\\s+ms\\b", 0, 0);
         } catch (Error e) {
-            warning ("Failed to create Regexes '%s'", e.message);
+            assert_not_reached ();
         }
 
         this.state = ProcessState.INIT;
@@ -252,7 +252,7 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
                     this.host_ip = line.slice (start + 1, end);
                 }
             } else {
-                warning ("traceroute parser: Unexpected line '%s'", line);
+                debug ("traceroute parser: Unexpected line '%s'", line);
             }
             break;
         case ProcessState.HOPS:
@@ -276,8 +276,8 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
                 return;
             }
             MatchInfo info;
-            if (!regex.match (line, 0, out info)) {
-                warning ("traceroute parser: Unexpected line '%s'", line);
+            if (!this.regex.match (line, 0, out info)) {
+                debug ("traceroute parser: Unexpected line '%s'", line);
 
                 return;
             }
@@ -298,7 +298,7 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
             }
 
             var rtt_string = info.fetch (3);
-            rtt_regex.match (rtt_string, 0, out info);
+            this.rtt_regex.match (rtt_string, 0, out info);
             var rtt_count = 0;
             var rtt_average = 0.0;
             try {
@@ -308,7 +308,9 @@ internal class Rygel.BasicManagementTestTraceroute : BasicManagementTest {
                     info.next ();
                 }
             } catch (RegexError e) {
-                warning ("Regex error while parsing rtt values: %s", e.message);
+                debug ("Failed to parse round trip time values '%s': %s",
+                       rtt_string,
+                       e.message);
             }
 
             if (rtt_count > 0) {

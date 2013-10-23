@@ -125,8 +125,9 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         private string get_addresses_csv () {
             var builder = new StringBuilder ("");
             foreach (var address in this.addresses) {
-                if (builder.len != 0)
+                if (builder.len != 0) {
                     builder.append (",");
+                }
                 builder.append (address);
             }
 
@@ -169,8 +170,9 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
     public uint repetitions {
         construct {
             this.iterations = value;
-            if (this.iterations == 0)
+            if (this.iterations == 0) {
                 this.iterations = DEFAULT_REPETITIONS;
+            }
         }
 
         private get {
@@ -297,12 +299,12 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
         line.strip ();
         if (line.has_prefix ("Server:")) {
             if (result.state != ProcessState.INIT) {
-                warning ("nslookup parser: Unexpected 'Server:' line.\n");
+                debug ("nslookup parser: Unexpected 'Server:' line.\n");
             }
             result.state = ProcessState.SERVER;
         } else if (line.has_prefix ("Name:")) {
             if (result.state == ProcessState.INIT) {
-                warning ("nslookup parser: Unexpected 'Name:' line");
+                debug ("nslookup parser: Unexpected 'Name:' line");
             } else if (result.state == ProcessState.SERVER) {
                 var name = line.substring ("Name:".length).strip ();
                 result.returned_host_name = name;
@@ -316,10 +318,11 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
             } else if (result.state == ProcessState.NAME) {
                 result.addresses += line.substring ("Address:".length).strip ();
                 result.status = ResultStatus.SUCCESS;
-                if (result.answer_type == AnswerType.NONE)
+                if (result.answer_type == AnswerType.NONE) {
                     result.answer_type = AnswerType.AUTHORITATIVE;
+                }
             } else {
-                warning ("nslookup parser: Unexpected 'Address:' line");
+                debug ("nslookup parser: Unexpected 'Address:' line");
             }
         } else if (line.has_prefix ("Non-authoritative answer:")) {
             result.answer_type = AnswerType.NON_AUTHORITATIVE;
@@ -344,8 +347,9 @@ internal class Rygel.BasicManagementTestNSLookup : BasicManagementTest {
 
         foreach (var result in this.results) {
             builder.append (result.to_xml_fragment ());
-            if (result.status == ResultStatus.SUCCESS)
+            if (result.status == ResultStatus.SUCCESS) {
                 success_count++;
+            }
         }
         builder.append (FOOTER);
         result_string = builder.str;
