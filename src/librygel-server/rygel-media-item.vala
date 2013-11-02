@@ -137,10 +137,6 @@ public abstract class Rygel.MediaItem : MediaObject {
 
     public abstract bool streamable ();
 
-    public virtual void add_uri (string uri) {
-        this.uris.add (uri);
-    }
-
     internal int compare_transcoders (Transcoder transcoder1,
                                       Transcoder transcoder2) {
         return (int) transcoder1.get_distance (this) -

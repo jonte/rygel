@@ -47,7 +47,21 @@ public abstract class Rygel.MediaObject : GLib.Object {
     //TODO: { get; private set; } or, even better,
     // add virtual set_uri in Object and make add_uri() in Item into set_uri()
     // and make the uri property single-value.
-    public Gee.ArrayList<string> uris;
+    private Gee.ArrayList<string> _uris;
+
+    public virtual void add_uri (string uri) {
+        uris.add (uri);
+    }
+
+    public virtual void remove_uri (string uri) {
+        uris.remove (uri);
+    }
+
+    public BidirList<string> uris {
+        owned get {
+            return uris.read_only_view;
+        }
+    }
 
     // You can keep both an unowned and owned ref to parent of this MediaObject.
     // In most cases, one will only need to keep an unowned ref to avoid cyclic
@@ -146,7 +160,7 @@ public abstract class Rygel.MediaObject : GLib.Object {
     public override void constructed () {
         base.constructed ();
 
-        uris = new ArrayList<string> ();
+        _uris = new ArrayList<string> ();
     }
 
     /**

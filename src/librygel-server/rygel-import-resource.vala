@@ -136,7 +136,7 @@ internal class Rygel.ImportResource : GLib.Object, Rygel.StateMachine {
         queue.dequeue (this.item);
 
         try {
-            var source_file = File.new_for_uri (this.item.uris[0]);
+            var source_file = File.new_for_uri (this.item.uris.@get (0));
             this.output_stream = yield source_file.replace_async (null,
                                                                   false,
                                                                   FileCreateFlags.PRIVATE,
