@@ -3,6 +3,7 @@ include $(top_srcdir)/common.am
 bin_PROGRAMS = rygel
 
 rygel_SOURCES = \
+	rygel-acl.vala \
 	rygel-dbus-service.vala \
 	rygel-main.vala \
 	rygel-cmdline-config.vala \

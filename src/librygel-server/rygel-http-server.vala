@@ -49,7 +49,7 @@ public class Rygel.HTTPServer : Rygel.TranscodeManager, Rygel.StateMachine {
     }
 
     public async void run () {
-        context.server.add_handler (this.path_root, this.server_handler);
+        context.add_server_handler (true, this.path_root, this.server_handler);
         context.server.request_aborted.connect (this.on_request_aborted);
         context.server.request_started.connect (this.on_request_started);
 
