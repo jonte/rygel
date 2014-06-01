@@ -217,6 +217,7 @@ public class Rygel.UserConfig : GLib.Object, Configuration {
         if (UserConfig.config == null) {
             var path = Path.build_filename (Environment.get_user_config_dir (),
                                             CONFIG_FILE);
+
             UserConfig.config = new UserConfig (path);
         }
 

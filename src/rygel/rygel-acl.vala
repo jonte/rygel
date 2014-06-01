@@ -66,11 +66,27 @@ internal class Rygel.Acl : GLib.Object, GUPnP.Acl
             return false;
         }
 
+        message ("Querying ACL for %s on %s by %s@%s",
+                 path,
+                 device != null ? device.udn : "none",
+                 agent ?? "Unknown",
+                 address);
+
         try {
-            var allowed = yield provider.is_allowed (new HashTable<string,
-                    string> (null, null),
-                                                     new HashTable<string,
-                                                     string> (null, null),
+            var device_hash = new HashTable<string, string> (str_hash, str_equal);
+            if (device != null) {
+                device_hash["FriendlyName"] = device.get_friendly_name ();
+                device_hash["UDN"] = device.udn;
+                device_hash["Type"] = device.device_type;
+            }
+
+            var service_hash = new HashTable<string, string> (str_hash, str_equal);
+            if (service != null) {
+                service_hash["Type"] = service.service_type;
+            }
+
+            var allowed = yield provider.is_allowed (device_hash,
+                                                     service_hash,
                                                      path,
                                                      address,
                                                      agent);
