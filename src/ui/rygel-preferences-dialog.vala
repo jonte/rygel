@@ -104,6 +104,9 @@ public class Rygel.PreferencesDialog : GLib.Object {
             MetaConfig.register_configuration (UserConfig.get_default ());
             var dialog = new PreferencesDialog ();
 
+            var provider = new AclProvider ();
+            provider.register ();
+
             dialog.run ();
         } catch (Error err) {
             error (_("Failed to create preferences dialog: %s"), err.message);
