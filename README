@@ -67,7 +67,7 @@ Requirements
       * gst-ffmpeg
       * gst-plugins-bad
       * gst-plugins-ugly
-      
+
 To build without gstreamer, use:
   --with-media-engine=simple
 This will also disable any plugins that use gstreamer.
@@ -86,6 +86,6 @@ References
   * http://www.gnome.org/projects/tracker
   * http://live.gnome.org/DVBDaemon
   * http://www.zdf.de
-  * http://live.gnome.org/Rygel/MediaServer2Spec
+  * http://wiki.gnome.org/Projects/Rygel/MediaServer2Spec
   * http://www.mpris.org/2.0/spec/
 
